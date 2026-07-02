@@ -1,11 +1,11 @@
 import psycopg2
+from config import Config
 
-connection = psycopg2.connect(
-    host="inventory-db",
-    database="inventory",
-    user="admin",
-    password="password",
-    port=5432
-)
-
-cursor = connection.cursor()
+def get_connection():
+    return psycopg2.connect(
+        host=Config.DB_HOST,
+        database=Config.DB_NAME,
+        user=Config.DB_USER,
+        password=Config.DB_PASSWORD,
+        port=Config.DB_PORT
+    )
