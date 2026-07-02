@@ -1,0 +1,44 @@
+# Inventory Management API
+
+A containerized Inventory Management REST API built with Flask, PostgreSQL, and Podman Compose.
+
+## Technologies
+
+- Flask
+- PostgreSQL
+- Podman
+- Podman Compose
+- Python
+- psycopg2
+
+## Features
+
+- List products
+- Get a product by ID
+- Create a product
+- Update a product
+- Delete a product
+
+## Run
+
+```bash
+podman compose up --build -d
+```
+
+API:
+
+```
+http://localhost:5000
+```
+
+### Endpoints
+
+GET /products
+
+GET /products/{id}
+
+POST /products
+
+PUT /products/{id}
+
+DELETE /products/{id}
