@@ -1,13 +1,13 @@
 from flask import jsonify
 
-from exceptions.not_found import ProductNotFoundException
+from exceptions.not_found import ProductNotFoundError
 from exceptions.validation import ValidationException
 from exceptions.database import DatabaseException
 
 
 def register_error_handlers(app):
 
-    @app.errorhandler(ProductNotFoundException)
+    @app.errorhandler(ProductNotFoundError)
     def handle_not_found(error):
 
         return jsonify({

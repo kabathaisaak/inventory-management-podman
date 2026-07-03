@@ -1,4 +1,4 @@
-from database import get_connection
+from database import get_cursor
 from models.product import Product
 
 
@@ -6,23 +6,25 @@ def find_all(page=1, limit=10, name=None, sort="id", order="asc"):
 
     offset = (page - 1) * limit
 
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        """
+    query = """
         SELECT id, name, price
         FROM products
-        ORDER BY id
-        LIMIT %s OFFSET %s
-        """,
-        (limit, offset)
-    )
+    """
 
-    rows = cur.fetchall()
+    params = []
 
-    cur.close()
-    conn.close()
+    if name:
+        query += " WHERE LOWER(name) LIKE LOWER(%s)"
+        params.append(f"%{name}%")
+
+    query += f" ORDER BY {sort} {order.upper()}"
+    query += " LIMIT %s OFFSET %s"
+
+    params.extend([limit, offset])
+
+    with get_cursor() as cur:
+        cur.execute(query, params)
+        rows = cur.fetchall()
 
     return [
         Product(
@@ -36,39 +38,33 @@ def find_all(page=1, limit=10, name=None, sort="id", order="asc"):
 
 def count(name=None):
 
-    conn = get_connection()
-    cur = conn.cursor()
-
     query = "SELECT COUNT(*) FROM products"
-
     params = []
 
     if name:
         query += " WHERE LOWER(name) LIKE LOWER(%s)"
         params.append(f"%{name}%")
 
-    cur.execute(query, params)
-
-    total = cur.fetchone()[0]
-
-    cur.close()
-    conn.close()
+    with get_cursor() as cur:
+        cur.execute(query, params)
+        total = cur.fetchone()[0]
 
     return total
 
+
 def find_by_id(product_id):
-    conn = get_connection()
-    cur = conn.cursor()
 
-    cur.execute(
-        "SELECT id, name, price FROM products WHERE id=%s",
-        (product_id,)
-    )
+    with get_cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, name, price
+            FROM products
+            WHERE id=%s
+            """,
+            (product_id,)
+        )
 
-    row = cur.fetchone()
-
-    cur.close()
-    conn.close()
+        row = cur.fetchone()
 
     if row is None:
         return None
@@ -81,58 +77,43 @@ def find_by_id(product_id):
 
 
 def save(name, price):
-    conn = get_connection()
-    cur = conn.cursor()
 
-    cur.execute(
-        """
-        INSERT INTO products(name, price)
-        VALUES(%s, %s)
-        RETURNING id
-        """,
-        (name, price)
-    )
+    with get_cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO products(name, price)
+            VALUES(%s, %s)
+            RETURNING id
+            """,
+            (name, price)
+        )
 
-    new_id = cur.fetchone()[0]
-
-    conn.commit()
-
-    cur.close()
-    conn.close()
+        new_id = cur.fetchone()[0]
 
     return new_id
 
 
 def update(product_id, name, price):
-    conn = get_connection()
-    cur = conn.cursor()
 
-    cur.execute(
-        """
-        UPDATE products
-        SET name=%s,
-            price=%s
-        WHERE id=%s
-        """,
-        (name, price, product_id)
-    )
-
-    conn.commit()
-
-    cur.close()
-    conn.close()
+    with get_cursor() as cur:
+        cur.execute(
+            """
+            UPDATE products
+            SET name=%s,
+                price=%s
+            WHERE id=%s
+            """,
+            (name, price, product_id)
+        )
 
 
 def delete(product_id):
-    conn = get_connection()
-    cur = conn.cursor()
 
-    cur.execute(
-        "DELETE FROM products WHERE id=%s",
-        (product_id,)
-    )
-
-    conn.commit()
-
-    cur.close()
-    conn.close()
+    with get_cursor() as cur:
+        cur.execute(
+            """
+            DELETE FROM products
+            WHERE id=%s
+            """,
+            (product_id,)
+        )
