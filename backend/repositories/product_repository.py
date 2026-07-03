@@ -2,12 +2,21 @@ from database import get_connection
 from models.product import Product
 
 
-def find_all():
+def find_all(page=1, limit=10, name=None, sort="id", order="asc"):
+
+    offset = (page - 1) * limit
+
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT id, name, price FROM products ORDER BY id"
+        """
+        SELECT id, name, price
+        FROM products
+        ORDER BY id
+        LIMIT %s OFFSET %s
+        """,
+        (limit, offset)
     )
 
     rows = cur.fetchall()
@@ -16,10 +25,36 @@ def find_all():
     conn.close()
 
     return [
-        Product(row[0], row[1], row[2]).to_dict()
+        Product(
+            row[0],
+            row[1],
+            row[2]
+        ).to_dict()
         for row in rows
     ]
 
+
+def count(name=None):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    query = "SELECT COUNT(*) FROM products"
+
+    params = []
+
+    if name:
+        query += " WHERE LOWER(name) LIKE LOWER(%s)"
+        params.append(f"%{name}%")
+
+    cur.execute(query, params)
+
+    total = cur.fetchone()[0]
+
+    cur.close()
+    conn.close()
+
+    return total
 
 def find_by_id(product_id):
     conn = get_connection()
