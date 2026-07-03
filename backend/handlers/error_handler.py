@@ -9,35 +9,33 @@ def register_error_handlers(app):
 
     @app.errorhandler(ProductNotFoundError)
     def handle_not_found(error):
-
         return jsonify({
             "success": False,
             "message": error.message
         }), 404
 
-
     @app.errorhandler(ValidationException)
     def handle_validation(error):
-
         return jsonify({
             "success": False,
             "message": error.message
         }), 400
 
-
     @app.errorhandler(DatabaseException)
     def handle_database(error):
-
         return jsonify({
             "success": False,
             "message": error.message
         }), 500
 
-
     @app.errorhandler(Exception)
     def handle_exception(error):
 
+        import traceback
+
+        traceback.print_exc()
+
         return jsonify({
             "success": False,
-            "message": "Internal server error"
+            "message": str(error)
         }), 500
