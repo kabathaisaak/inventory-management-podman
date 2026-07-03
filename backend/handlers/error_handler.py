@@ -1,25 +1,41 @@
 from flask import jsonify
 
+from exceptions.not_found import ProductNotFoundException
+from exceptions.validation import ValidationException
+from exceptions.database import DatabaseException
+
 
 def register_error_handlers(app):
 
-    @app.errorhandler(404)
-    def not_found(error):
+    @app.errorhandler(ProductNotFoundException)
+    def handle_not_found(error):
+
         return jsonify({
             "success": False,
-            "message": "Resource not found"
+            "message": error.message
         }), 404
 
-    @app.errorhandler(400)
-    def bad_request(error):
+
+    @app.errorhandler(ValidationException)
+    def handle_validation(error):
+
         return jsonify({
             "success": False,
-            "message": "Bad request"
+            "message": error.message
         }), 400
 
+
+    @app.errorhandler(DatabaseException)
+    def handle_database(error):
+
+        return jsonify({
+            "success": False,
+            "message": error.message
+        }), 500
+
+
     @app.errorhandler(Exception)
-    def internal_error(error):
-        print(error)
+    def handle_exception(error):
 
         return jsonify({
             "success": False,

@@ -1,10 +1,18 @@
 from flask import Flask, jsonify
-import logging_config.logger as logger
+from flasgger import Swagger
 
 from routes.products import products_bp
 from handlers.error_handler import register_error_handlers
 
 app = Flask(__name__)
+register_error_handlers(app)
+
+app.config["SWAGGER"] = {
+    "title": "Inventory Management API",
+    "uiversion": 3
+}
+
+Swagger(app)
 
 app.register_blueprint(products_bp)
 
@@ -13,7 +21,6 @@ register_error_handlers(app)
 
 @app.route("/")
 def home():
-    logger.info("Inventory API started successfully.")
     return jsonify({
         "message": "Inventory Management API",
         "status": "Running"

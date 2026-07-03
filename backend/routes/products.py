@@ -1,7 +1,17 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
+from flasgger import swag_from
 
 from validators.product_validator import validate_product
 from logging_config.logger import logger
+from utils.response import success_response
+
+from docs.product_docs import (
+    GET_PRODUCTS_DOC,
+    GET_PRODUCT_DOC,
+    CREATE_PRODUCT_DOC,
+    UPDATE_PRODUCT_DOC,
+    DELETE_PRODUCT_DOC,
+)
 
 from services.product_service import (
     get_all_products,
@@ -15,20 +25,17 @@ products_bp = Blueprint("products", __name__)
 
 
 @products_bp.route("/products", methods=["GET"])
+@swag_from(GET_PRODUCTS_DOC)
 def get_products():
 
-    page = request.args.get("page", default=1, type=int)
-    limit = request.args.get("limit", default=10, type=int)
+    page = request.args.get("page", 1, type=int)
+    limit = request.args.get("limit", 10, type=int)
     name = request.args.get("name")
-    sort = request.args.get("sort", default="id")
-    order = request.args.get("order", default="asc")
+    sort = request.args.get("sort", "id")
+    order = request.args.get("order", "asc")
 
     logger.info(
-        f"Fetching products page={page}, "
-        f"limit={limit}, "
-        f"name={name}, "
-        f"sort={sort}, "
-        f"order={order}"
+        f"Fetching products page={page}, limit={limit}"
     )
 
     products = get_all_products(
@@ -39,68 +46,51 @@ def get_products():
         order
     )
 
-    return jsonify(products)
+    return success_response(products)
+
 
 @products_bp.route("/products/<int:id>", methods=["GET"])
+@swag_from(GET_PRODUCT_DOC)
 def get_product(id):
-    logger.info(f"Fetching product with ID {id}")
+
+    logger.info(f"Fetching product {id}")
 
     product = get_product_by_id(id)
 
-    if product is None:
-        logger.warning(f"Product with ID {id} not found")
-
-        return jsonify({
-            "success": False,
-            "message": "Product not found"
-        }), 404
-
-    return jsonify(product)
+    return success_response(product)
 
 
 @products_bp.route("/products", methods=["POST"])
+@swag_from(CREATE_PRODUCT_DOC)
 def create_product():
 
     data = request.get_json()
 
-    error = validate_product(data)
-
-    if error:
-        logger.warning(f"Validation failed while creating product: {error}")
-
-        return jsonify({
-            "success": False,
-            "message": error
-        }), 400
+    validate_product(data)
 
     new_id = create_product_service(
         data["name"],
         data["price"]
     )
 
-    logger.info(f"Product created successfully with ID {new_id}")
+    logger.info(f"Created product {new_id}")
 
-    return jsonify({
-        "success": True,
-        "message": "Product created",
-        "id": new_id
-    }), 201
+    return success_response(
+        {
+            "id": new_id
+        },
+        "Product created",
+        201
+    )
 
 
 @products_bp.route("/products/<int:id>", methods=["PUT"])
+@swag_from(UPDATE_PRODUCT_DOC)
 def update_product(id):
 
     data = request.get_json()
 
-    error = validate_product(data)
-
-    if error:
-        logger.warning(f"Validation failed while updating product {id}: {error}")
-
-        return jsonify({
-            "success": False,
-            "message": error
-        }), 400
+    validate_product(data)
 
     update_product_service(
         id,
@@ -108,22 +98,23 @@ def update_product(id):
         data["price"]
     )
 
-    logger.info(f"Product {id} updated successfully")
+    logger.info(f"Updated product {id}")
 
-    return jsonify({
-        "success": True,
-        "message": "Product updated"
-    })
+    return success_response(
+        None,
+        "Product updated"
+    )
 
 
 @products_bp.route("/products/<int:id>", methods=["DELETE"])
+@swag_from(DELETE_PRODUCT_DOC)
 def delete_product(id):
 
     delete_product_service(id)
 
-    logger.info(f"Product {id} deleted successfully")
+    logger.info(f"Deleted product {id}")
 
-    return jsonify({
-        "success": True,
-        "message": "Product deleted"
-    })
+    return success_response(
+        None,
+        "Product deleted"
+    )
