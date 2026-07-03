@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from validators.product_validator import validate_product
 
 from services.product_service import (
     get_all_products,
@@ -28,7 +29,16 @@ def get_product(id):
 
 @products_bp.route("/products", methods=["POST"])
 def create_product():
+
     data = request.get_json()
+
+    error = validate_product(data)
+
+    if error:
+        return jsonify({
+            "success": False,
+            "message": error
+        }), 400
 
     new_id = create_product_service(
         data["name"],
@@ -36,24 +46,11 @@ def create_product():
     )
 
     return jsonify({
+        "success": True,
         "message": "Product created",
         "id": new_id
     }), 201
 
-
-@products_bp.route("/products/<int:id>", methods=["PUT"])
-def update_product(id):
-    data = request.get_json()
-
-    update_product_service(
-        id,
-        data["name"],
-        data["price"]
-    )
-
-    return jsonify({
-        "message": "Product updated"
-    })
 
 
 @products_bp.route("/products/<int:id>", methods=["DELETE"])
