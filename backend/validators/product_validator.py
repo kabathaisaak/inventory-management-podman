@@ -1,36 +1,57 @@
 from exceptions.validation import ValidationException
-
-
 def validate_product(data):
+    """
+    Validate a product payload.
+    """
 
-    if not data:
+    if data is None:
         raise ValidationException(
-            "Request body is required"
+            "Request body is required."
         )
 
-    if "name" not in data:
+    name = data.get("name")
+    price = data.get("price")
+
+    if name is None:
         raise ValidationException(
-            "Name is required"
+            "Product name is required."
         )
 
-    if not str(data["name"]).strip():
+    if not isinstance(name, str):
         raise ValidationException(
-            "Name cannot be empty"
+            "Product name must be a string."
         )
 
-    if "price" not in data:
+    name = name.strip()
+
+    if len(name) == 0:
         raise ValidationException(
-            "Price is required"
+            "Product name cannot be empty."
+        )
+
+    if len(name) > 100:
+        raise ValidationException(
+            "Product name cannot exceed 100 characters."
+        )
+
+    if price is None:
+        raise ValidationException(
+            "Price is required."
         )
 
     try:
-        price = float(data["price"])
-    except (ValueError, TypeError):
+        price = float(price)
+    except (TypeError, ValueError):
         raise ValidationException(
-            "Price must be a number"
+            "Price must be a valid number."
         )
 
     if price <= 0:
         raise ValidationException(
-            "Price must be greater than zero"
+            "Price must be greater than zero."
         )
+
+    return {
+        "name": name,
+        "price": price
+    }
