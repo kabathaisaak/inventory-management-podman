@@ -1,5 +1,5 @@
 from config import Config
-from users.user.repository import (
+from users.user_repository import (
     find_by_username,
     create_user,
     find_by_id

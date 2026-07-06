@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 from flasgger import Swagger
-
+from users.user_routes import users_bp
 from routes.products import products_bp
 from auth.auth_routes import auth_bp
 from handlers.error_handler import register_error_handlers
@@ -17,6 +17,7 @@ app.config["SWAGGER"] = {
 # Register blueprints
 app.register_blueprint(products_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(users_bp)
 
 swagger_config = {
     "headers": [],

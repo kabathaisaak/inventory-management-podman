@@ -1,5 +1,8 @@
-class ProductNotFoundError(Exception):
-    """Exception raised when a product is not found in the database."""
-    def __init__(self, product_id):
-        self.message = f"Product with ID {product_id} not found."
+class ResourceNotFoundError(Exception):
+    """
+    Raised when a requested resource cannot be found.
+    """
+
+    def __init__(self, resource, resource_id):
+        self.message = f"{resource} with ID {resource_id} not found."
         super().__init__(self.message)
