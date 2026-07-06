@@ -2,8 +2,6 @@ from database import get_cursor
 from models.user import User
 
 
-
-
 def find_by_username(username):
 
     with get_cursor() as cur:
@@ -17,7 +15,7 @@ def find_by_username(username):
                 role,
                 created_at
             FROM users
-            WHERE username = %s
+            WHERE username=%s
             """,
             (username,)
         )
@@ -27,13 +25,7 @@ def find_by_username(username):
         if row is None:
             return None
 
-        return User(
-            row[0],
-            row[1],
-            row[2],
-            row[3],
-            row[4]
-        )
+        return User(*row)
 
 
 def find_by_id(user_id):
@@ -49,7 +41,7 @@ def find_by_id(user_id):
                 role,
                 created_at
             FROM users
-            WHERE id = %s
+            WHERE id=%s
             """,
             (user_id,)
         )
@@ -59,13 +51,7 @@ def find_by_id(user_id):
         if row is None:
             return None
 
-        return User(
-            row[0],
-            row[1],
-            row[2],
-            row[3],
-            row[4]
-        )
+        return User(*row)
 
 
 def create_user(username, password, role="user"):
@@ -79,7 +65,7 @@ def create_user(username, password, role="user"):
                 password,
                 role
             )
-            VALUES (%s, %s, %s)
+            VALUES (%s,%s,%s)
             RETURNING id
             """,
             (
@@ -92,7 +78,7 @@ def create_user(username, password, role="user"):
         return cur.fetchone()[0]
 
 
-def get_all_users():
+def find_all():
 
     with get_cursor() as cur:
 
@@ -112,25 +98,34 @@ def get_all_users():
         rows = cur.fetchall()
 
         return [
-            User(
-                row[0],
-                row[1],
-                row[2],
-                row[3],
-                row[4]
-            ).to_dict()
+            User(*row).to_dict()
             for row in rows
         ]
 
 
-def delete_user(user_id):
+def update_role(user_id, role):
 
     with get_cursor() as cur:
 
         cur.execute(
             """
-            DELETE FROM users
-            WHERE id = %s
+            UPDATE users
+            SET role=%s
+            WHERE id=%s
+            """,
+            (role, user_id)
+        )
+
+
+def delete(user_id):
+
+    with get_cursor() as cur:
+
+        cur.execute(
+            """
+            DELETE
+            FROM users
+            WHERE id=%s
             """,
             (user_id,)
         )

@@ -5,7 +5,8 @@ from utils.response import success_response, error_response
 
 from auth.auth_service import (
     register_user,
-    login_user
+    login_user,
+    refresh_access_token
 )
 
 auth_bp = Blueprint("auth", __name__)
@@ -86,3 +87,38 @@ def login():
             str(error),
             401
         )
+    
+@auth_bp.route("/refresh", methods=["POST"])
+def refresh():
+
+    data = request.get_json()
+
+    refresh_token = data.get("refresh_token")
+
+    if not refresh_token:
+        return error_response(
+            "Refresh token is required",
+            400
+        )
+
+    try:
+
+        result = refresh_access_token(
+            refresh_token
+        )
+
+        logger.info("Access token refreshed")
+
+        return success_response(
+            result,
+            "Token refreshed"
+        )
+
+    except ValueError as error:
+
+        logger.warning(str(error))
+
+        return error_response(
+            str(error),
+            401
+        ) 
