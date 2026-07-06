@@ -1,10 +1,12 @@
 from flask import Blueprint, request
 from flasgger import swag_from
+
 from auth.auth_middleware import jwt_required
+from auth.roles import roles_required
+
 from validators.product_validator import validate_product
 from logging_config.logger import logger
 from utils.response import success_response
-from auth.roles import roles_required 
 
 from docs.product_docs import (
     GET_PRODUCTS_DOC,
@@ -25,32 +27,42 @@ from services.product_service import (
 products_bp = Blueprint("products", __name__)
 
 
+# ==========================
+# GET ALL PRODUCTS
+# ==========================
+
 @products_bp.route("/products", methods=["GET"])
+@jwt_required
 @swag_from(GET_PRODUCTS_DOC)
 def get_products():
 
-    page = request.args.get("page", 1, type=int)
-    limit = request.args.get("limit", 10, type=int)
+    page = request.args.get("page", default=1, type=int)
+    limit = request.args.get("limit", default=10, type=int)
     name = request.args.get("name")
-    sort = request.args.get("sort", "id")
-    order = request.args.get("order", "asc")
+    sort = request.args.get("sort", default="id")
+    order = request.args.get("order", default="asc")
 
     logger.info(
         f"Fetching products page={page}, limit={limit}"
     )
 
     products = get_all_products(
-        page,
-        limit,
-        name,
-        sort,
-        order
+        page=page,
+        limit=limit,
+        name=name,
+        sort=sort,
+        order=order,
     )
 
     return success_response(products)
 
 
+# ==========================
+# GET PRODUCT BY ID
+# ==========================
+
 @products_bp.route("/products/<int:id>", methods=["GET"])
+@jwt_required
 @swag_from(GET_PRODUCT_DOC)
 def get_product(id):
 
@@ -58,8 +70,15 @@ def get_product(id):
 
     product = get_product_by_id(id)
 
-    return success_response(product)
+    return success_response(
+        product,
+        "Product retrieved successfully"
+    )
 
+
+# ==========================
+# CREATE PRODUCT
+# ==========================
 
 @products_bp.route("/products", methods=["POST"])
 @jwt_required
@@ -73,7 +92,7 @@ def create_product():
 
     new_id = create_product_service(
         data["name"],
-        data["price"]
+        data["price"],
     )
 
     logger.info(f"Created product {new_id}")
@@ -82,14 +101,18 @@ def create_product():
         {
             "id": new_id
         },
-        "Product created",
-        201
+        "Product created successfully",
+        201,
     )
 
 
+# ==========================
+# UPDATE PRODUCT
+# ==========================
+
 @products_bp.route("/products/<int:id>", methods=["PUT"])
-@roles_required("admin")
 @jwt_required
+@roles_required("admin")
 @swag_from(UPDATE_PRODUCT_DOC)
 def update_product(id):
 
@@ -100,20 +123,24 @@ def update_product(id):
     update_product_service(
         id,
         data["name"],
-        data["price"]
+        data["price"],
     )
 
     logger.info(f"Updated product {id}")
 
     return success_response(
         None,
-        "Product updated"
+        "Product updated successfully",
     )
 
 
+# ==========================
+# DELETE PRODUCT
+# ==========================
+
 @products_bp.route("/products/<int:id>", methods=["DELETE"])
-@roles_required("admin")
 @jwt_required
+@roles_required("admin")
 @swag_from(DELETE_PRODUCT_DOC)
 def delete_product(id):
 
@@ -123,5 +150,5 @@ def delete_product(id):
 
     return success_response(
         None,
-        "Product deleted"
+        "Product deleted successfully",
     )

@@ -55,26 +55,29 @@ def count(name=None):
 def find_by_id(product_id):
 
     with get_cursor() as cur:
+
         cur.execute(
             """
-            SELECT id, name, price
+            SELECT
+                id,
+                name,
+                price
             FROM products
-            WHERE id=%s
+            WHERE id = %s
             """,
             (product_id,)
         )
 
         row = cur.fetchone()
 
-    if row is None:
-        return None
+        if row is None:
+            return None
 
-    return Product(
-        row[0],
-        row[1],
-        row[2]
-    ).to_dict()
-
+        return {
+            "id": row[0],
+            "name": row[1],
+            "price": float(row[2])
+        }
 
 def save(name, price):
 

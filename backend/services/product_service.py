@@ -1,5 +1,8 @@
 import math
+
 from repositories import product_repository
+
+from exceptions.not_found import ProductNotFoundError
 
 
 def get_all_products(
@@ -29,14 +32,34 @@ def get_all_products(
 
 
 def get_product_by_id(product_id):
-    return product_repository.find_by_id(product_id)
+
+    product = product_repository.find_by_id(product_id)
+
+    if product is None:
+        raise ProductNotFoundError(
+            f"Product with ID {product_id} was not found."
+        )
+
+    return product
 
 
 def create_product(name, price):
-    return product_repository.save(name, price)
+
+    return product_repository.save(
+        name,
+        price
+    )
 
 
 def update_product(product_id, name, price):
+
+    product = product_repository.find_by_id(product_id)
+
+    if product is None:
+        raise ProductNotFoundError(
+            f"Product with ID {product_id} was not found."
+        )
+
     product_repository.update(
         product_id,
         name,
@@ -45,4 +68,12 @@ def update_product(product_id, name, price):
 
 
 def delete_product(product_id):
+
+    product = product_repository.find_by_id(product_id)
+
+    if product is None:
+        raise ProductNotFoundError(
+            f"Product with ID {product_id} was not found."
+        )
+
     product_repository.delete(product_id)
