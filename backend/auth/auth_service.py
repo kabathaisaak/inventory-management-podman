@@ -38,15 +38,16 @@ def login_user(username, password):
     if user is None:
         raise ValueError("Invalid username or password")
 
-    if not verify_password(
-        password,
-        user.password
-    ):
+    if not verify_password(password, user.password):
         raise ValueError("Invalid username or password")
 
     token = generate_token(user)
 
     return {
         "token": token,
-        "user": user.to_dict()
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "role": user.role
+        }
     }
