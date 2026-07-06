@@ -2,26 +2,24 @@ GET_PRODUCTS_DOC = {
     "tags": ["Products"],
     "summary": "Get all products",
     "description": "Retrieve a paginated list of products with optional filtering and sorting.",
+    "produces": ["application/json"],
     "parameters": [
         {
             "name": "page",
             "in": "query",
             "type": "integer",
-            "default": 1,
-            "required": False
+            "default": 1
         },
         {
             "name": "limit",
             "in": "query",
             "type": "integer",
-            "default": 10,
-            "required": False
+            "default": 10
         },
         {
             "name": "name",
             "in": "query",
             "type": "string",
-            "required": False,
             "description": "Filter products by name"
         },
         {
@@ -29,16 +27,14 @@ GET_PRODUCTS_DOC = {
             "in": "query",
             "type": "string",
             "enum": ["id", "name", "price"],
-            "default": "id",
-            "required": False
+            "default": "id"
         },
         {
             "name": "order",
             "in": "query",
             "type": "string",
             "enum": ["asc", "desc"],
-            "default": "asc",
-            "required": False
+            "default": "asc"
         }
     ],
     "responses": {
@@ -52,7 +48,8 @@ GET_PRODUCTS_DOC = {
 GET_PRODUCT_DOC = {
     "tags": ["Products"],
     "summary": "Get product by ID",
-    "description": "Retrieve a single product using its ID.",
+    "description": "Retrieve a product by its ID.",
+    "produces": ["application/json"],
     "parameters": [
         {
             "name": "id",
@@ -77,6 +74,13 @@ CREATE_PRODUCT_DOC = {
     "tags": ["Products"],
     "summary": "Create a product",
     "description": "Create a new product.",
+    "security": [
+        {
+            "Bearer": []
+        }
+    ],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
     "parameters": [
         {
             "name": "body",
@@ -84,10 +88,7 @@ CREATE_PRODUCT_DOC = {
             "required": True,
             "schema": {
                 "type": "object",
-                "required": [
-                    "name",
-                    "price"
-                ],
+                "required": ["name", "price"],
                 "properties": {
                     "name": {
                         "type": "string",
@@ -107,6 +108,12 @@ CREATE_PRODUCT_DOC = {
         },
         400: {
             "description": "Validation error"
+        },
+        401: {
+            "description": "Unauthorized"
+        },
+        403: {
+            "description": "Forbidden"
         }
     }
 }
@@ -116,6 +123,13 @@ UPDATE_PRODUCT_DOC = {
     "tags": ["Products"],
     "summary": "Update a product",
     "description": "Update an existing product.",
+    "security": [
+        {
+            "Bearer": []
+        }
+    ],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
     "parameters": [
         {
             "name": "id",
@@ -130,10 +144,7 @@ UPDATE_PRODUCT_DOC = {
             "required": True,
             "schema": {
                 "type": "object",
-                "required": [
-                    "name",
-                    "price"
-                ],
+                "required": ["name", "price"],
                 "properties": {
                     "name": {
                         "type": "string",
@@ -154,6 +165,12 @@ UPDATE_PRODUCT_DOC = {
         400: {
             "description": "Validation error"
         },
+        401: {
+            "description": "Unauthorized"
+        },
+        403: {
+            "description": "Forbidden"
+        },
         404: {
             "description": "Product not found"
         }
@@ -165,6 +182,12 @@ DELETE_PRODUCT_DOC = {
     "tags": ["Products"],
     "summary": "Delete a product",
     "description": "Delete a product by its ID.",
+    "security": [
+        {
+            "Bearer": []
+        }
+    ],
+    "produces": ["application/json"],
     "parameters": [
         {
             "name": "id",
@@ -177,6 +200,12 @@ DELETE_PRODUCT_DOC = {
     "responses": {
         200: {
             "description": "Product deleted successfully"
+        },
+        401: {
+            "description": "Unauthorized"
+        },
+        403: {
+            "description": "Forbidden"
         },
         404: {
             "description": "Product not found"

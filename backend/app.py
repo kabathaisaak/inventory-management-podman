@@ -6,6 +6,7 @@ from auth.auth_routes import auth_bp
 from handlers.error_handler import register_error_handlers
 
 app = Flask(__name__)
+
 register_error_handlers(app)
 
 app.config["SWAGGER"] = {
@@ -13,12 +14,47 @@ app.config["SWAGGER"] = {
     "uiversion": 3
 }
 
-Swagger(app)
-
+# Register blueprints
 app.register_blueprint(products_bp)
 app.register_blueprint(auth_bp)
 
-register_error_handlers(app)
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "apispec",
+            "route": "/apispec.json",
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/docs/"
+}
+
+template = {
+    "swagger": "2.0",
+    "info": {
+        "title": "Inventory Management API",
+        "description": "REST API for Inventory Management",
+        "version": "1.0.0"
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Enter your JWT as: Bearer <token>"
+        }
+    }
+}
+
+Swagger(
+    app,
+    config=swagger_config,
+    template=template
+)
 
 
 @app.route("/")
@@ -37,4 +73,8 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )

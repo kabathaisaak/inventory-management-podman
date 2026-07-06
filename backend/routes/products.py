@@ -4,6 +4,7 @@ from auth.auth_middleware import jwt_required
 from validators.product_validator import validate_product
 from logging_config.logger import logger
 from utils.response import success_response
+from auth.roles import roles_required 
 
 from docs.product_docs import (
     GET_PRODUCTS_DOC,
@@ -62,6 +63,7 @@ def get_product(id):
 
 @products_bp.route("/products", methods=["POST"])
 @jwt_required
+@roles_required("admin")
 @swag_from(CREATE_PRODUCT_DOC)
 def create_product():
 
@@ -86,6 +88,7 @@ def create_product():
 
 
 @products_bp.route("/products/<int:id>", methods=["PUT"])
+@roles_required("admin")
 @jwt_required
 @swag_from(UPDATE_PRODUCT_DOC)
 def update_product(id):
@@ -109,6 +112,7 @@ def update_product(id):
 
 
 @products_bp.route("/products/<int:id>", methods=["DELETE"])
+@roles_required("admin")
 @jwt_required
 @swag_from(DELETE_PRODUCT_DOC)
 def delete_product(id):
