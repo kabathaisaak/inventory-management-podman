@@ -2,7 +2,7 @@ from functools import wraps
 
 from flask import request, g
 
-from auth.jwt_handler import verify_access_token
+from auth.jwt_handler import  verify_access_token
 
 
 def jwt_required(f):
@@ -36,7 +36,7 @@ def jwt_required(f):
 
             return {
                 "success": False,
-                "message": "Invalid or expired access token"
+                "message": "Invalid or expired token"
             }, 401
 
         return f(*args, **kwargs)

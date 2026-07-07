@@ -1,9 +1,11 @@
 from flask import Flask, jsonify
 from flasgger import Swagger
+from exceptions.not_found import ResourceNotFoundError
 from users.user_routes import users_bp
 from routes.products import products_bp
 from auth.auth_routes import auth_bp
 from handlers.error_handler import register_error_handlers
+from utils.response import error_response
 
 app = Flask(__name__)
 
@@ -13,6 +15,10 @@ app.config["SWAGGER"] = {
     "title": "Inventory Management API",
     "uiversion": 3
 }
+
+@app.errorhandler(ResourceNotFoundError)
+def handle_not_found(error):
+    return error_response(str(error), 404)
 
 # Register blueprints
 app.register_blueprint(products_bp)

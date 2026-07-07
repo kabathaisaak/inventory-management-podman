@@ -2,7 +2,7 @@ import math
 
 from repositories import product_repository
 
-from exceptions.not_found import ProductNotFoundError
+from exceptions.not_found import ResourceNotFoundError
 
 
 def get_all_products(
@@ -31,18 +31,15 @@ def get_all_products(
     }
 
 
+
 def get_product_by_id(product_id):
 
     product = product_repository.find_by_id(product_id)
 
     if product is None:
-        raise ProductNotFoundError(
-            f"Product with ID {product_id} was not found."
-        )
+        raise ResourceNotFoundError("Product", product_id)
 
     return product
-
-
 def create_product(name, price):
 
     return product_repository.save(
@@ -56,7 +53,7 @@ def update_product(product_id, name, price):
     product = product_repository.find_by_id(product_id)
 
     if product is None:
-        raise ProductNotFoundError(
+        raise ResourceNotFoundError(
             f"Product with ID {product_id} was not found."
         )
 
@@ -72,7 +69,7 @@ def delete_product(product_id):
     product = product_repository.find_by_id(product_id)
 
     if product is None:
-        raise ProductNotFoundError(
+        raise ResourceNotFoundError(
             f"Product with ID {product_id} was not found."
         )
 
