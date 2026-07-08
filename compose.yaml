@@ -1,27 +1,66 @@
 services:
+
   inventory-db:
     image: postgres:16
     container_name: inventory-db
+    restart: unless-stopped
+
     environment:
       POSTGRES_DB: inventory
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - inventory-network
+
   inventory-api:
+    image: inventory-api:v1
+
     build:
       context: ./backend
       dockerfile: Containerfile
+
     container_name: inventory-api
+    restart: unless-stopped
+
     ports:
       - "5000:5000"
-    depends_on:
-      - inventory-db
+
     env_file:
       - ./backend/.env
 
+    depends_on:
+      - inventory-db
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+    networks:
+      - inventory-network
+
 volumes:
   postgres-data:
+
+networks:
+  inventory-network:
