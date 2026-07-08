@@ -13,7 +13,10 @@ def get_user_by_id(user_id):
     user = user_repository.find_by_id(user_id)
 
     if user is None:
-        raise ResourceNotFoundError(user_id)
+        raise ResourceNotFoundError(
+            "User",
+            user_id
+        )
 
     return user.to_dict()
 
@@ -23,7 +26,10 @@ def update_user_role(user_id, role):
     user = user_repository.find_by_id(user_id)
 
     if user is None:
-        raise ResourceNotFoundError(user_id)
+        raise ResourceNotFoundError(
+            "User",
+            user_id
+        )
 
     user_repository.update_role(
         user_id,
@@ -41,6 +47,9 @@ def delete_user(user_id):
     user = user_repository.find_by_id(user_id)
 
     if user is None:
-        raise ResourceNotFoundError(user_id)
+        raise ResourceNotFoundError(
+            "User",
+            user_id
+        )
 
     user_repository.delete(user_id)

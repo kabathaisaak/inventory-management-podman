@@ -8,7 +8,12 @@ def find_by_username(username):
 
         cur.execute(
             """
-            SELECT id, username, password, role
+            SELECT
+                id,
+                username,
+                password,
+                role,
+                created_at
             FROM users
             WHERE username=%s
             """,
@@ -24,7 +29,8 @@ def find_by_username(username):
         row[0],
         row[1],
         row[2],
-        row[3]
+        row[3],
+        row[4]
     )
 
 
@@ -54,7 +60,12 @@ def find_by_id(user_id):
 
         cur.execute(
             """
-            SELECT id, username, password, role
+            SELECT
+                id,
+                username,
+                password,
+                role,
+                created_at
             FROM users
             WHERE id=%s
             """,
@@ -70,5 +81,35 @@ def find_by_id(user_id):
         row[0],
         row[1],
         row[2],
-        row[3]
-    )
+        row[3],
+        row[4]
+    ).to_dict()
+
+
+def find_all():
+
+    with get_cursor() as cur:
+
+        cur.execute(
+            """
+            SELECT
+                id,
+                username,
+                role,
+                created_at
+            FROM users
+            ORDER BY id
+            """
+        )
+
+        rows = cur.fetchall()
+
+    return [
+        {
+            "id": row[0],
+            "username": row[1],
+            "role": row[2],
+            "created_at": row[3]
+        }
+        for row in rows
+    ]
