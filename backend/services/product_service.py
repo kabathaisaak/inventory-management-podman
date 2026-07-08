@@ -69,53 +69,12 @@ def update_product(product_id, name, price):
         price
     )
 def delete_product(product_id):
-
     product = product_repository.find_by_id(product_id)
 
     if product is None:
         raise ResourceNotFoundError(
             "Product",
             product_id
-        )
-
-    product_repository.delete(product_id)
-
-    product = product_repository.find_by_id(product_id)
-
-    if product is None:
-        raise ResourceNotFoundError(
-            "Product",
-            product_id
-        )
-
-    product_repository.delete(product_id)
-
-    product = product_repository.find_by_id(product_id)
-
-    if product is None:
-        raise ResourceNotFoundError(
-            "Product",
-            f" {product_id}"
-        )
-
-    product_repository.delete(product_id)
-
-    product = product_repository.find_by_id(product_id)
-
-    if product is None:
-        raise ResourceNotFoundError(
-            "Product",
-            product_id
-        )
-
-    product_repository.delete(product_id)
-
-    product = product_repository.find_by_id(product_id)
-
-    if product is None:
-        raise ResourceNotFoundError(
-            "Product",
-            f" {product_id}"
         )
 
     product_repository.delete(product_id)
