@@ -1,9 +1,17 @@
-def test_register(client):
+import uuid
 
+from tests.helpers import login
+
+
+def unique_username():
+    return f"pytest_{uuid.uuid4().hex[:8]}"
+
+
+def test_register(client):
     response = client.post(
         "/register",
         json={
-            "username": "pytestuser",
+            "username": unique_username(),
             "password": "password123"
         }
     )
@@ -14,12 +22,14 @@ def test_register(client):
 
     assert body["success"] is True
 
+
 def test_register_duplicate_username(client):
+    username = unique_username()
 
     client.post(
         "/register",
         json={
-            "username": "duplicate",
+            "username": username,
             "password": "password123"
         }
     )
@@ -27,15 +37,15 @@ def test_register_duplicate_username(client):
     response = client.post(
         "/register",
         json={
-            "username": "duplicate",
+            "username": username,
             "password": "password123"
         }
     )
 
-    assert response.status_code == 400    
+    assert response.status_code == 400
+
 
 def test_register_without_username(client):
-
     response = client.post(
         "/register",
         json={
@@ -45,29 +55,25 @@ def test_register_without_username(client):
 
     assert response.status_code == 400
 
-def test_register_without_password(client):
 
+def test_register_without_password(client):
     response = client.post(
         "/register",
         json={
-            "username": "john"
+            "username": unique_username()
         }
     )
 
-    assert response.status_code == 400    
-
-
-from tests.helpers import login
+    assert response.status_code == 400
 
 
 def test_login(client):
-
     token = login(client)
 
-    assert token is not None    
+    assert token is not None
+
 
 def test_login_invalid_password(client):
-
     response = client.post(
         "/login",
         json={
@@ -76,11 +82,10 @@ def test_login_invalid_password(client):
         }
     )
 
-    assert response.status_code == 401    
+    assert response.status_code == 401
 
 
 def test_login_unknown_user(client):
-
     response = client.post(
         "/login",
         json={
@@ -89,10 +94,10 @@ def test_login_unknown_user(client):
         }
     )
 
-    assert response.status_code == 401    
+    assert response.status_code == 401
+
 
 def test_login_without_username(client):
-
     response = client.post(
         "/login",
         json={
@@ -102,8 +107,8 @@ def test_login_without_username(client):
 
     assert response.status_code == 400
 
-def test_login_without_password(client):
 
+def test_login_without_password(client):
     response = client.post(
         "/login",
         json={
@@ -111,13 +116,10 @@ def test_login_without_password(client):
         }
     )
 
-    assert response.status_code == 400    
-
-from tests.helpers import login
+    assert response.status_code == 400
 
 
 def test_refresh_token(client):
-
     login_response = client.post(
         "/login",
         json={
@@ -125,6 +127,8 @@ def test_refresh_token(client):
             "password": "admin123"
         }
     )
+
+    assert login_response.status_code == 200
 
     refresh = login_response.get_json()["data"]["refresh_token"]
 
@@ -139,12 +143,10 @@ def test_refresh_token(client):
 
     body = response.get_json()
 
-    assert body["success"] is True 
-
+    assert body["success"] is True
 
 
 def test_refresh_invalid_token(client):
-
     response = client.post(
         "/refresh",
         json={
@@ -152,14 +154,13 @@ def test_refresh_invalid_token(client):
         }
     )
 
-    assert response.status_code == 401       
+    assert response.status_code == 401
 
 
 def test_refresh_without_token(client):
-
     response = client.post(
         "/refresh",
         json={}
     )
 
-    assert response.status_code == 400    
+    assert response.status_code == 400

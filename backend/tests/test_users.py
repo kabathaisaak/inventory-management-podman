@@ -1,5 +1,27 @@
 from tests.helpers import login
+import uuid
 
+from tests.helpers import login
+
+
+def create_test_user(client):
+    username = f"user_{uuid.uuid4().hex[:8]}"
+
+    response = client.post(
+        "/register",
+        json={
+            "username": username,
+            "password": "password123"
+        }
+    )
+
+    assert response.status_code == 201
+
+    body = response.get_json()
+
+    assert body["success"] is True
+
+    return body["data"]["id"]
 
 def test_get_users(client):
 
@@ -76,15 +98,15 @@ def test_get_me(client):
     assert body["success"] is True
     assert body["data"]["username"] == "admin"    
 
-from tests.helpers import login
 
 
 def test_update_user_role(client):
+    user_id = create_test_user(client)
 
     token = login(client)
 
     response = client.patch(
-        "/users/2/role",
+        f"/users/{user_id}/role",
         headers={
             "Authorization": f"Bearer {token}"
         },
@@ -93,9 +115,11 @@ def test_update_user_role(client):
         }
     )
 
-    assert response.status_code == 200    
+    assert response.status_code == 200
 
-from tests.helpers import login
+    body = response.get_json()
+
+    assert body["success"] is True
 
 
 def test_update_invalid_role(client):
@@ -118,26 +142,25 @@ from tests.helpers import login
 
 
 def test_delete_user(client):
-
-    client.post(
-        "/register",
-        json={
-            "username": "delete_me",
-            "password": "password123"
-        }
-    )
+    user_id = create_test_user(client)
 
     token = login(client)
 
     response = client.delete(
-        "/users/2",
+        f"/users/{user_id}",
         headers={
             "Authorization": f"Bearer {token}"
         }
     )
 
-    assert response.status_code == 200    
+    assert response.status_code == 200
 
+    body = response.get_json()
+
+    assert body["success"] is True
+
+
+    
 def test_users_without_token(client):
 
     response = client.get("/users")
