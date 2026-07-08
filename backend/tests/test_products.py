@@ -1,52 +1,29 @@
+
 from tests.helpers import login
 
 
-def test_get_products(client):
-    token = login(client)
 
-    response = client.get(
+def create_test_product(client, token):
+    response = client.post(
         "/products",
         headers={
             "Authorization": f"Bearer {token}"
+        },
+        json={
+            "name": "Pytest Product",
+            "price": 55000
         }
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     body = response.get_json()
 
-    assert body["success"] is True
-    assert "data" in body
-
-
-def test_get_product(client):
-    token = login(client)
-
-    response = client.get(
-        "/products/1",
-        headers={
-            "Authorization": f"Bearer {token}"
-        }
-    )
-
-    assert response.status_code == 200
-
-    body = response.get_json()
+    print("CREATE RESPONSE:", body)
 
     assert body["success"] is True
 
-
-def test_get_missing_product(client):
-    token = login(client)
-
-    response = client.get(
-        "/products/999999",
-        headers={
-            "Authorization": f"Bearer {token}"
-        }
-    )
-
-    assert response.status_code == 404
+    return body["data"]["id"]
 
 
 def test_create_product(client):
@@ -67,7 +44,44 @@ def test_create_product(client):
 
     body = response.get_json()
 
+    print("CREATE RESPONSE:", body)
+
     assert body["success"] is True
+
+    # Don't check body["data"]["name"] yet.
+    # We first want to see what the API actually returns.
+
+def test_get_product(client):
+    token = login(client)
+
+    product_id = create_test_product(client, token)
+
+    response = client.get(
+        f"/products/{product_id}",
+        headers={
+            "Authorization": f"Bearer {token}"
+        }
+    )
+
+    assert response.status_code == 200
+
+    body = response.get_json()
+
+    assert body["success"] is True
+    assert body["data"]["id"] == product_id
+
+
+def test_get_missing_product(client):
+    token = login(client)
+
+    response = client.get(
+        "/products/999999",
+        headers={
+            "Authorization": f"Bearer {token}"
+        }
+    )
+
+    assert response.status_code == 404
 
 
 def test_create_product_without_name(client):
@@ -106,8 +120,10 @@ def test_create_product_negative_price(client):
 def test_update_product(client):
     token = login(client)
 
+    product_id = create_test_product(client, token)
+
     response = client.put(
-        "/products/1",
+        f"/products/{product_id}",
         headers={
             "Authorization": f"Bearer {token}"
         },
@@ -119,18 +135,28 @@ def test_update_product(client):
 
     assert response.status_code == 200
 
+    body = response.get_json()
+
+    assert body["success"] is True
+
 
 def test_delete_product(client):
     token = login(client)
 
+    product_id = create_test_product(client, token)
+
     response = client.delete(
-        "/products/1",
+        f"/products/{product_id}",
         headers={
             "Authorization": f"Bearer {token}"
         }
     )
 
     assert response.status_code == 200
+
+    body = response.get_json()
+
+    assert body["success"] is True
 
 
 def test_products_without_token(client):

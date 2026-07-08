@@ -141,8 +141,8 @@ def update_product(id):
 @products_bp.route("/products/<int:id>", methods=["DELETE"])
 @jwt_required
 @roles_required("admin")
-@swag_from(DELETE_PRODUCT_DOC)
 def delete_product(id):
+    print(">>> DELETE ROUTE CALLED", id)
 
     delete_product_service(id)
 
