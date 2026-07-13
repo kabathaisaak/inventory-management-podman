@@ -21,3 +21,15 @@ class Config:
     REFRESH_TOKEN_EXPIRES = int(
         os.getenv("REFRESH_TOKEN_EXPIRES", "7")
     )
+
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+
+class TestingConfig(Config):
+    TESTING = True
+
+
+class ProductionConfig(Config):
+    DEBUG = False
