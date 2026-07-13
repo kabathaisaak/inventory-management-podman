@@ -7,31 +7,34 @@ from routes.products import products_bp
 from auth.auth_routes import auth_bp
 from handlers.error_handler import register_error_handlers
 from utils.response import error_response
-from handlers.duplicate_handler import register_duplicate_handler
+# from handlers.duplicate_handler import register_duplicate_handler
 from handlers.global_handler import register_global_handler
-from handlers.not_found_handler import register_not_found_handler
+# from handlers.not_found_handler import register_not_found_handler
 
 app = Flask(__name__)
 
 register_error_handlers(app)
 register_validation_handler(app)
-register_duplicate_handler(app)
+# register_duplicate_handler(app)
 register_global_handler(app)
-register_not_found_handler(app)
+# register
 
-app.config["SWAGGER"] = {
-    "title": "Inventory Management API",
-    "uiversion": 3
-}
+API_PREFIX = "/api/v1"
 
-@app.errorhandler(ResourceNotFoundError)
-def handle_not_found(error):
-    return error_response(str(error), 404)
+app.register_blueprint(
+    products_bp,
+    url_prefix=API_PREFIX
+)
 
-# Register blueprints
-app.register_blueprint(products_bp)
-app.register_blueprint(auth_bp)
-app.register_blueprint(users_bp)
+app.register_blueprint(
+    users_bp,
+    url_prefix=API_PREFIX
+)
+
+app.register_blueprint(
+    auth_bp,
+    url_prefix=API_PREFIX
+)
 
 swagger_config = {
     "headers": [],
@@ -39,13 +42,17 @@ swagger_config = {
         {
             "endpoint": "apispec",
             "route": "/apispec.json",
-            "rule_filter": lambda rule: True,
-            "model_filter": lambda tag: True,
         }
     ],
-    "static_url_path": "/flasgger_static",
-    "swagger_ui": True,
-    "specs_route": "/docs/"
+}
+
+swagger_template = {
+    "swagger": "2.0",
+    "info": {
+        "title": "Inventory API",
+        "version": "1.0.0"
+    },
+    "basePath": "/api/v1"
 }
 
 template = {

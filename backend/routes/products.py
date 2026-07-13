@@ -34,7 +34,7 @@ schema = ProductSchema()
 # GET ALL PRODUCTS
 # ==========================
 
-@products_bp.route("/products", methods=["GET"])
+@products_bp.route("/api/v1/products", methods=["GET"])
 @jwt_required
 @swag_from(GET_PRODUCTS_DOC)
 def get_products():
@@ -62,7 +62,7 @@ def get_products():
 # GET PRODUCT BY ID
 # ==========================
 
-@products_bp.route("/products/<int:id>", methods=["GET"])
+@products_bp.route("api/v1/products/<int:id>", methods=["GET"])
 @jwt_required
 @swag_from(GET_PRODUCT_DOC)
 def get_product(id):
@@ -81,7 +81,7 @@ def get_product(id):
 # CREATE PRODUCT
 # ==========================
 
-@products_bp.route("/products", methods=["POST"])
+@products_bp.route("api/v1/products", methods=["POST"])
 @jwt_required
 @roles_required("admin")
 @swag_from(CREATE_PRODUCT_DOC)
@@ -109,7 +109,7 @@ def create_product():
 # UPDATE PRODUCT
 # ==========================
 
-@products_bp.route("/products/<int:id>", methods=["PUT"])
+@products_bp.route("api/v1/products/<int:id>", methods=["PUT"])
 @jwt_required
 @roles_required("admin")
 @swag_from(UPDATE_PRODUCT_DOC)
@@ -135,7 +135,7 @@ def update_product(id):
 # DELETE PRODUCT
 # ==========================
 
-@products_bp.route("/products/<int:id>", methods=["DELETE"])
+@products_bp.route("api/v1/products/<int:id>", methods=["DELETE"])
 @jwt_required
 @roles_required("admin")
 @swag_from(DELETE_PRODUCT_DOC)
