@@ -1,3 +1,3 @@
 # Inventory Management API
 
-![CI](https://github.com/<YOUR_USERNAME>/inventory-management/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/kabathaisaak/inventory-management/actions/workflows/ci.yml/badge.svg)
