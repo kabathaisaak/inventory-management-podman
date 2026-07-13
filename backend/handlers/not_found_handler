@@ -1,0 +1,13 @@
+from exceptions.not_found import ResourceNotFoundError
+from utils.response import error_response
+
+
+def register_not_found_handler(app):
+
+    @app.errorhandler(ResourceNotFoundError)
+    def handle_not_found(err):
+
+        return error_response(
+            str(err),
+            404
+        )

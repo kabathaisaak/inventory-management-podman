@@ -1,17 +1,23 @@
 from flask import Flask, jsonify
 from flasgger import Swagger
 from exceptions.not_found import ResourceNotFoundError
+from handlers.validator_handler import register_validation_handler
 from users.user_routes import users_bp
 from routes.products import products_bp
 from auth.auth_routes import auth_bp
 from handlers.error_handler import register_error_handlers
-from handlers import validation_handler
 from utils.response import error_response
+from handlers.duplicate_handler import register_duplicate_handler
+from handlers.global_handler import register_global_handler
+from handlers.not_found_handler import register_not_found_handler
 
 app = Flask(__name__)
 
 register_error_handlers(app)
-validation_handler(app)
+register_validation_handler(app)
+register_duplicate_handler(app)
+register_global_handler(app)
+register_not_found_handler(app)
 
 app.config["SWAGGER"] = {
     "title": "Inventory Management API",
