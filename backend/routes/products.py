@@ -1,10 +1,11 @@
 from flask import Blueprint, request
 from flasgger import swag_from
 
+from schemas.product_schema import ProductSchema
+
 from auth.auth_middleware import jwt_required
 from auth.roles import roles_required
 
-from validators.product_validator import validate_product
 from logging_config.logger import logger
 from utils.response import success_response
 
@@ -26,6 +27,8 @@ from services.product_service import (
 
 products_bp = Blueprint("products", __name__)
 
+schema = ProductSchema()
+
 
 # ==========================
 # GET ALL PRODUCTS
@@ -42,9 +45,7 @@ def get_products():
     sort = request.args.get("sort", default="id")
     order = request.args.get("order", default="asc")
 
-    logger.info(
-        f"Fetching products page={page}, limit={limit}"
-    )
+    logger.info(f"Fetching products page={page}, limit={limit}")
 
     products = get_all_products(
         page=page,
@@ -72,7 +73,7 @@ def get_product(id):
 
     return success_response(
         product,
-        "Product retrieved successfully"
+        "Product retrieved successfully",
     )
 
 
@@ -86,9 +87,7 @@ def get_product(id):
 @swag_from(CREATE_PRODUCT_DOC)
 def create_product():
 
-    data = request.get_json()
-
-    validate_product(data)
+    data = schema.load(request.get_json())
 
     new_id = create_product_service(
         data["name"],
@@ -116,9 +115,7 @@ def create_product():
 @swag_from(UPDATE_PRODUCT_DOC)
 def update_product(id):
 
-    data = request.get_json()
-
-    validate_product(data)
+    data = schema.load(request.get_json())
 
     update_product_service(
         id,
@@ -141,8 +138,8 @@ def update_product(id):
 @products_bp.route("/products/<int:id>", methods=["DELETE"])
 @jwt_required
 @roles_required("admin")
+@swag_from(DELETE_PRODUCT_DOC)
 def delete_product(id):
-    print(">>> DELETE ROUTE CALLED", id)
 
     delete_product_service(id)
 

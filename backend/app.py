@@ -5,11 +5,13 @@ from users.user_routes import users_bp
 from routes.products import products_bp
 from auth.auth_routes import auth_bp
 from handlers.error_handler import register_error_handlers
+from handlers import validation_handler
 from utils.response import error_response
 
 app = Flask(__name__)
 
 register_error_handlers(app)
+validation_handler(app)
 
 app.config["SWAGGER"] = {
     "title": "Inventory Management API",

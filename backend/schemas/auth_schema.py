@@ -17,3 +17,15 @@ class RegisterSchema(Schema):
             min=8
         )
     )
+
+
+class LoginSchema(Schema):
+
+    username = fields.String(required=True)
+
+    password = fields.String(required=True)
+
+
+class RefreshSchema(Schema):
+
+    refresh_token = fields.String(required=True)
